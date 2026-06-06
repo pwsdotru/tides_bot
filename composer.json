@@ -1,0 +1,33 @@
+{
+  "name": "pwsdotru/tides_bot",
+  "description": "Telegram Bot for show information about tides",
+  "type": "project",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Aleksandr Novikov",
+      "email": "pwsdotru@gmail.com",
+      "homepage": "https://github.com/pwsdotru"
+    }
+  ],
+  "keywords": [
+    "telegram",
+    "bot",    
+    "tides"
+  ],
+  "require": {
+    "php": ">=8.0",
+    "ext-curl": "*",
+    "telegram-bot/api": "*"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "3.5.* || 3.6.*"
+  },
+  "scripts": {
+    "style:check": "vendor/bin/phpcs",
+    "style:fix": "vendor/bin/phpcbf",
+    "git:prepush": [
+      "@style:check"
+    ]
+  }
+}
