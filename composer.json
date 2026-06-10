@@ -18,7 +18,8 @@
   "require": {
     "php": ">=8.0",
     "ext-curl": "*",
-    "telegram-bot/api": "*"
+    "telegram-bot/api": "*",
+    "pwsdotru/worldtides-client": "*"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "3.5.* || 3.6.*"
