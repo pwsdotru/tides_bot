@@ -12,7 +12,14 @@ try {
     $bot->command('start', function ($message) use ($bot) {
             $bot->sendMessage(
                 $message->getChat()->getId(),
-                "Welcome to tides bot"
+                "Welcome to tides bot. Use /show for get Tides level for next 7 days."
+            );
+    });
+
+    $bot->command('show', function ($message) use ($bot) {
+            $bot->sendMessage(
+                $message->getChat()->getId(),
+                "Show"
             );
     });
 
