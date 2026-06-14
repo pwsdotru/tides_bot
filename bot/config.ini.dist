@@ -1,3 +1,4 @@
 TOKEN = "Token from BotFather"
+WORLDTIDES_APIKEY = "Token from Worltides"
 POINT_LAT = "7.8333"
 POINT_LON = "98.4167"

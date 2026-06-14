@@ -4,6 +4,7 @@ require_once(dirname(__DIR__) . "/vendor/autoload.php");
 
 use TelegramBot\Api\Client;
 use TelegramBot\Api\Exception;
+use Worldtides\API;
 
 try {
     $config = parse_ini_file(__DIR__ . "/config.ini");
@@ -17,9 +18,13 @@ try {
     });
 
     $bot->command('show', function ($message) use ($bot) {
+            global $config;
+            $tides = new API($config["WORLDTIDES_APIKEY"]);
+            $tides->setDate(date("Y-m-d"))
+                ->setPoint($config["POINT_LAT"], $config["POINT_LON"]);
             $bot->sendMessage(
                 $message->getChat()->getId(),
-                "Show"
+                $tides->geImage(7)
             );
     });
 
