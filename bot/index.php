@@ -19,12 +19,15 @@ try {
 
     $bot->command('show', function ($message) use ($bot) {
             global $config;
+            $text = sprintf("Tides from %s for 7 days", date("Y-m-d"));
             $tides = new API($config["WORLDTIDES_APIKEY"]);
             $tides->setDate(date("Y-m-d"))
                 ->setPoint($config["POINT_LAT"], $config["POINT_LON"]);
-            $bot->sendMessage(
+            $photo = $tides->getImage(7);
+            $bot->sendPhoto(
                 $message->getChat()->getId(),
-                $tides->geImage(7)
+                $photo,
+                $text
             );
     });
 
