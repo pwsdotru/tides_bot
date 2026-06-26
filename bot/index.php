@@ -20,15 +20,27 @@ try {
     $bot->command('show', function ($message) use ($bot) {
             global $config;
             $text = sprintf("Tides from %s for 7 days", date("Y-m-d"));
-            $tides = new API($config["WORLDTIDES_APIKEY"]);
-            $tides->setDate(date("Y-m-d"))
-                ->setPoint($config["POINT_LAT"], $config["POINT_LON"]);
-            $photo = $tides->getImage(7);
+            try {
+                $tides = new API($config["WORLDTIDES_APIKEY"]);
+                $tides->setDate(date("Y-m-d"))
+                    ->setPoint($config["POINT_LAT"], $config["POINT_LON"]);
+                $img = $tides->getImage(7);
+                $tmpfile = tempnam("/tmp", "tides_");
+                file_put_contents($tmpfile, $img);
+                $photo = new \CURLFile($tmpfile);
+            } catch (Exception $e) {
+                error_log("Expection on show: " . $e->getMessage());
+            }
+
             $bot->sendPhoto(
                 $message->getChat()->getId(),
                 $photo,
                 $text
             );
+
+            if (file_exists($tmpfile)) {
+                unlink($tmpfile);
+            }
     });
 
     $bot->run();
