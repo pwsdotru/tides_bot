@@ -29,7 +29,7 @@ try {
             $tmpfile = tempnam("/tmp", "tides_");
             file_put_contents($tmpfile, $img);
             $photo = new \CURLFile($tmpfile);
-            $minmax = $tides->getMixMax(DAYS_TO_SHOW);
+            $minmax = $tides->getMinMax(DAYS_TO_SHOW);
             if (is_array($minmax) && array_key_exists("min", $minmax) && array_key_exists("max", $minmax)) {
                 if (is_array($minmax["min"]) && count($minmax["min"])) {
                     $text .= "\nMinimum level:\n";
