@@ -20,7 +20,7 @@ try {
 
     $bot->command('show', function ($message) use ($bot) {
             global $config;
-            $text = sprintf("Tides from %s for %d days", date("Y-m-d"), days_to_show);
+            $text = sprintf("Tides from %s for %d days", date("Y-m-d"), DAYS_TO_SHOW);
         try {
             $tides = new API($config["WORLDTIDES_APIKEY"]);
             $tides->setDate(date("Y-m-d"))
@@ -29,8 +29,24 @@ try {
             $tmpfile = tempnam("/tmp", "tides_");
             file_put_contents($tmpfile, $img);
             $photo = new \CURLFile($tmpfile);
+            $minmax = $tides->getMixMax(DAYS_TO_SHOW);
+            if (is_array($minmax) && array_key_exists("min", $minmax) && array_key_exists("max", $minmax)) {
+                if (is_array($minmax["min"]) && count($minmax["min"])) {
+                    $text .= "\nMinimum level:\n";
+                    foreach ($minmax["mix"] as $min) {
+                        $text .= sprintf("%s - %f m\n", date("Y-m-d H:i", (int)$min["dt"]), (float)$min["height"]);
+                    }
+                }
+
+                if (is_array($minmax["min"]) && count($minmax["min"])) {
+                    $text .= "\nMaximum level:\n";
+                    foreach ($minmax["max"] as $max) {
+                        $text .= sprintf("%s - %f m\n", date("Y-m-d H:i", (int)$max["dt"]), (float)$max["height"]);
+                    }
+                }
+            }
         } catch (Exception $e) {
-            error_log("Expection on show: " . $e->getMessage());
+            error_log("Exception when call to worldtides: " . $e->getMessage());
         }
 
             $bot->sendPhoto(

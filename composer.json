@@ -19,7 +19,7 @@
     "php": ">=8.3",
     "ext-curl": "*",
     "telegram-bot/api": "*",
-    "pwsdotru/worldtides-client": "*"
+    "pwsdotru/worldtides-client": "1.5.*"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "4.*"
