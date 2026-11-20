@@ -14,7 +14,7 @@ try {
     $bot->command('start', function ($message) use ($bot) {
             $bot->sendMessage(
                 $message->getChat()->getId(),
-                "Welcome to tides bot. Use /show for get Tides level for next 7 days."
+                "Welcome to tides bot. Use /show for get Tides level for next 7 days. And /level for current level."
             );
     });
 
@@ -34,14 +34,14 @@ try {
                 if (is_array($minmax["min"]) && count($minmax["min"])) {
                     $text .= "\nMinimum level:\n";
                     foreach ($minmax["min"] as $min) {
-                        $text .= sprintf("%s: %f m\n", date("Y-m-d H:i", (int)$min["dt"]), (float)$min["height"]);
+                        $text .= sprintf("%s: %.02f m\n", date("Y-m-d H:i", (int)$min["dt"]), (float)$min["height"]);
                     }
                 }
 
                 if (is_array($minmax["min"]) && count($minmax["min"])) {
                     $text .= "\nMaximum level:\n";
                     foreach ($minmax["max"] as $max) {
-                        $text .= sprintf("%s: %f m\n", date("Y-m-d H:i", (int)$max["dt"]), (float)$max["height"]);
+                        $text .= sprintf("%s: %.02f m\n", date("Y-m-d H:i", (int)$max["dt"]), (float)$max["height"]);
                     }
                 }
             }
@@ -58,6 +58,32 @@ try {
         if (file_exists($tmpfile)) {
             unlink($tmpfile);
         }
+    });
+
+    $bot->command('level', function ($message) use ($bot) {
+        global $config;
+        $text = "Tide level for now: ";
+        try {
+            $now = time();
+            $tides = new API($config["WORLDTIDES_APIKEY"]);
+            $tides->setDate(date("Y-m-d"), $now)
+                ->setPoint($config["POINT_LAT"], $config["POINT_LON"]);
+            $heights = $tides->getHeights(2);
+            $cnt = count($heights);
+            for ($i = 1; $i < $cnt; $i++) {
+                $h = $heights[$i];
+                if ($heights[$i - 1]["dt"] <= $now && $now <= $h["dt"]) {
+                    $text .= sprintf("%.02f m (%s)\n", $h["height"], date("Y-m-d H:i", (int)$h["dt"]));
+                    break;
+                }
+            }
+        } catch (Exception $e) {
+            error_log("Exception when call to worldtides: " . $e->getMessage());
+        }
+        $bot->sendMessage(
+            $message->getChat()->getId(),
+            $text
+        );
     });
 
     $bot->run();
