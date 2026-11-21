@@ -1,11 +1,23 @@
 <?php
 
 const DAYS_TO_SHOW = 3;
+const TIME_FORMAT = "Y-m-d H:i";
+const LOCAL_TIMEZONE = "Asia/Bangkok";
+
 require_once(dirname(__DIR__) . "/vendor/autoload.php");
 
 use TelegramBot\Api\Client;
 use TelegramBot\Api\Exception;
 use Worldtides\API;
+
+function getLocalTime($timezone): int
+{
+    $time = time();
+    $date = new DateTimeImmutable("now");
+    $local = new DateTimeZone($timezone);
+    $time += $local->getOffset($date);
+    return $time;
+}
 
 try {
     $config = parse_ini_file(__DIR__ . "/config.ini");
@@ -34,14 +46,14 @@ try {
                 if (is_array($minmax["min"]) && count($minmax["min"])) {
                     $text .= "\nMinimum level:\n";
                     foreach ($minmax["min"] as $min) {
-                        $text .= sprintf("%s: %.02f m\n", date("Y-m-d H:i", (int)$min["dt"]), (float)$min["height"]);
+                        $text .= sprintf("%s: %.02f m\n", date(TIME_FORMAT, (int)$min["dt"]), (float)$min["height"]);
                     }
                 }
 
                 if (is_array($minmax["min"]) && count($minmax["min"])) {
                     $text .= "\nMaximum level:\n";
                     foreach ($minmax["max"] as $max) {
-                        $text .= sprintf("%s: %.02f m\n", date("Y-m-d H:i", (int)$max["dt"]), (float)$max["height"]);
+                        $text .= sprintf("%s: %.02f m\n", date(TIME_FORMAT, (int)$max["dt"]), (float)$max["height"]);
                     }
                 }
             }
@@ -64,7 +76,7 @@ try {
         global $config;
         $text = "Tide level for now: ";
         try {
-            $now = time();
+            $now = getLocalTime(LOCAL_TIMEZONE);
             $tides = new API($config["WORLDTIDES_APIKEY"]);
             $tides->setDate(date("Y-m-d"), $now)
                 ->setPoint($config["POINT_LAT"], $config["POINT_LON"]);
@@ -73,7 +85,7 @@ try {
             for ($i = 1; $i < $cnt; $i++) {
                 $h = $heights[$i];
                 if ($heights[$i - 1]["dt"] <= $now && $now <= $h["dt"]) {
-                    $text .= sprintf("%.02f m (%s)\n", $h["height"], date("Y-m-d H:i", (int)$h["dt"]));
+                    $text .= sprintf("%.02f m (%s)\n", $h["height"], date(TIME_FORMAT, (int)$h["dt"]));
                     break;
                 }
             }
@@ -83,6 +95,14 @@ try {
         $bot->sendMessage(
             $message->getChat()->getId(),
             $text
+        );
+    });
+
+    $bot->command('time', function ($message) use ($bot) {
+        $now = getLocalTime(LOCAL_TIMEZONE);
+        $bot->sendMessage(
+            $message->getChat()->getId(),
+            date(TIME_FORMAT, $now)
         );
     });
 
